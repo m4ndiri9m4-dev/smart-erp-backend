@@ -1,12 +1,11 @@
-import mongoose from "mongoose";
+// backend/models/Project.js
+import mongoose from 'mongoose';
 
 const projectSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  description: String,
-  targetSales: Number,
-  targetAttendance: Number,
-  assignedEmployees: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  progress: { type: Number, default: 0 },
+  description: { type: String },
+  assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
-export default mongoose.model("Project", projectSchema);
+const Project = mongoose.model('Project', projectSchema);
+export default Project;

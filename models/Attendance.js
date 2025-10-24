@@ -1,14 +1,11 @@
-import mongoose from "mongoose";
+// backend/models/Attendance.js
+import mongoose from 'mongoose';
 
 const attendanceSchema = new mongoose.Schema({
-  employee: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  project: { type: mongoose.Schema.Types.ObjectId, ref: "Project" },
-  clockIn: Date,
-  clockOut: Date,
-  breakOut: Date,
-  breakIn: Date,
-  gpsLocation: { lat: Number, lng: Number },
-  selfieUrl: String
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  clockIn: { type: Date },
+  clockOut: { type: Date }
 }, { timestamps: true });
 
-export default mongoose.model("Attendance", attendanceSchema);
+const Attendance = mongoose.model('Attendance', attendanceSchema);
+export default Attendance;

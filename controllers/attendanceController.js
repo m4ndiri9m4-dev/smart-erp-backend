@@ -1,38 +1,37 @@
-import Attendance from "../models/Attendance.js";
+// backend/controllers/attendanceController.js
+import Attendance from '../models/Attendance.js';
+import User from '../models/User.js';
 
-// Employee clock-in
 export const clockIn = async (req, res) => {
   try {
-    const { userId } = req.user; // From JWT
-    const timestamp = new Date();
+    const { userId } = req.body;
 
-    const attendance = await Attendance.create({
+    const attendance = new Attendance({
       user: userId,
-      clockIn: timestamp,
-      clockOut: null,
+      clockIn: new Date()
     });
 
-    res.status(201).json({ message: "Clocked in", timestamp: attendance.clockIn });
-  } catch (error) {
-    res.status(500).json({ message: "Clock-in failed", error: error.message });
+    await attendance.save();
+    res.json({ message: "Clocked in successfully", attendance });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Employee clock-out
 export const clockOut = async (req, res) => {
   try {
-    const { userId } = req.user;
-    const timestamp = new Date();
+    const { userId } = req.body;
 
-    // Find the latest clock-in record that hasn't been clocked out yet
-    const attendance = await Attendance.findOne({ user: userId, clockOut: null }).sort({ clockIn: -1 });
-    if (!attendance) return res.status(400).json({ message: "No active clock-in found" });
+    const attendance = await Attendance.findOne({ user: userId }).sort({ createdAt: -1 });
+    if (!attendance) return res.status(400).json({ message: "No clock-in found" });
 
-    attendance.clockOut = timestamp;
+    attendance.clockOut = new Date();
     await attendance.save();
 
-    res.status(200).json({ message: "Clocked out", timestamp: attendance.clockOut });
-  } catch (error) {
-    res.status(500).json({ message: "Clock-out failed", error: error.message });
+    res.json({ message: "Clocked out successfully", attendance });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
