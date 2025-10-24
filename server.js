@@ -1,29 +1,35 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import morgan from "morgan";
-import connectDB from "./config/db.js";
-
-import authRoutes from "./routes/authRoutes.js";
-import projectRoutes from "./routes/projectRoutes.js";
-import attendanceRoutes from "./routes/attendanceRoutes.js";
-import salesRoutes from "./routes/salesRoutes.js";
-import payrollRoutes from "./routes/payrollRoutes.js";
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import User from './models/User.js'; // your user schema
+import bcrypt from 'bcryptjs';
 
 dotenv.config();
-connectDB();
 
-const app = express();
-app.use(express.json());
-app.use(cors());
-app.use(morgan("dev"));
+mongoose.connect(process.env.MONGO_URI, { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true 
+}).then(async () => {
+    console.log("MongoDB connected");
 
-app.get("/", (req, res) => res.send("SmartERP API is running..."));
-app.use("/api/auth", authRoutes);
-app.use("/api/projects", projectRoutes);
-app.use("/api/attendance", attendanceRoutes);
-app.use("/api/sales", salesRoutes);
-app.use("/api/payroll", payrollRoutes);
+    // Check if any admin exists
+    const adminExists = await User.findOne({ role: 'admin' });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+    if (!adminExists) {
+        const hashedPassword = await bcrypt.hash('Admin123!', 10); // default password
+
+        const adminUser = new User({
+            name: 'Super Admin',
+            email: 'admin@smarterp.com',
+            password: hashedPassword,
+            role: 'admin'
+        });
+
+        await adminUser.save();
+        console.log("Default admin account created!");
+        console.log("Email: admin@smarterp.com");
+        console.log("Password: Admin123!");
+    } else {
+        console.log("Admin already exists, skipping creation.");
+    }
+
+}).catch(err => console.log(err));
