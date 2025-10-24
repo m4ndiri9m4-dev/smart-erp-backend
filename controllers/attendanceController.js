@@ -1,4 +1,4 @@
-import Attendance from "../models/attendanceModel.js";
+import Attendance from "../models/Attendance.js";
 
 // Employee clock-in
 export const clockIn = async (req, res) => {
